@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mint NFT on Solana</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      height: 100vh;
+    }
+    .container {
+      text-align: center;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+    }
+    input[type="file"] {
+      margin-top: 10px;
+    }
+    button {
+      background-color: #6200ea;
+      color: white;
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 14px;
+      padding: 10px;
+      display: none;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      border-radius: 5px;
+    }
+    .loading {
+      display: inline-block;
+      margin-top: 20px;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #aaa;
+      border-radius: 50%;
+      border-top-color: #6200ea;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mint NFT on Solana Devnet</h1>
+    <form id="mintForm" action="/mint" method="post" enctype="multipart/form-data">
+      <label for="image">Select an image to mint as NFT:</label>
+      <input type="file" id="image" name="image" required>
+      <button type="submit" id="mintButton">Mint NFT</button>
+      <div class="loading" id="loadingSpinner" style="display: none;"></div>
+    </form>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    document.getElementById('mintForm').onsubmit = async function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const mintButton = document.getElementById("mintButton");
+      const loadingSpinner = document.getElementById("loadingSpinner");
+
+      mintButton.disabled = true;
+      loadingSpinner.style.display = 'inline-block';
+      document.getElementById("message").style.display = 'none';
+
+      try {
+        const response = await fetch('/mint', { method: 'POST', body: formData });
+        const result = await response.json(); // Parse JSON response
+
+        if (response.ok && result.success) {
+          displayMessage(`
+            <p>NFT Minted Successfully!</p>
+            <p><strong>Mint Address:</strong> ${result.mintAddress}</p>
+            <p><strong>Minter Address:</strong> ${result.minterAddress}</p>
+            <p><strong>Transaction ID:</strong> <a href="https://explorer.solana.com/tx/${result.transactionId}?cluster=devnet" target="_blank">${result.transactionId}</a></p>
+            <p><a href="${result.metadataUri}" target="_blank">View NFT Metadata</a></p>
+          `, 'success');
+        } else {
+          throw new Error(result.error || 'Minting failed');
+        }
+      } catch (error) {
+        displayMessage(error.message, 'error');
+      } finally {
+        mintButton.disabled = false;
+        loadingSpinner.style.display = 'none';
+      }
+    };
+
+    function displayMessage(message, type) {
+      const messageDiv = document.getElementById("message");
+      messageDiv.className = `message ${type}`;
+      messageDiv.innerHTML = message;
+      messageDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
