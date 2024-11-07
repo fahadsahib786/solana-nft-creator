@@ -15,16 +15,17 @@ app.get('/', (req, res) => {
 });
 
 // POST endpoint to handle minting request
+
 app.post('/mint', upload.single('image'), async (req, res) => {
   try {
-    const result = await mintNFT(req.file.path);
+    const { name, symbol, description } = req.body; // Read metadata from request body
+    const result = await mintNFT(req.file.path, name, symbol, description);
     res.json(result); // Send JSON response with success and metadataUri
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Start the server
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });

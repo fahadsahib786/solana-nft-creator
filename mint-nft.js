@@ -5,14 +5,11 @@ const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
 
-// Initialize connection to Solana Devnet
 const connection = new Connection(clusterApiUrl('devnet'), "confirmed");
 const wallet = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(process.env.WALLET_KEYPAIR))));
-
-// Initialize Metaplex with wallet
 const metaplex = new Metaplex(connection).use(keypairIdentity(wallet));
 
-async function uploadToIPFS(imagePath) {
+async function uploadToIPFS(imagePath, name, description) {
   const data = new FormData();
   data.append('file', fs.createReadStream(imagePath));
   console.log("Uploading file to IPFS...");
@@ -34,7 +31,7 @@ async function uploadToIPFS(imagePath) {
   }
 }
 
-async function mintNFT(imagePath) {
+async function mintNFT(imagePath, name, symbol, description) {
   console.log("Starting NFT minting process...");
 
   try {
@@ -44,10 +41,10 @@ async function mintNFT(imagePath) {
 
     // Step 2: Define metadata for the NFT
     const nftMetadata = {
-      name: "My Solana NFT",
-      symbol: "",
+      name: name || "My Solana NFT",
+      symbol: symbol || "",
       uri: metadataUri,
-      sellerFeeBasisPoints: 500, // Represents 5% royalties
+      sellerFeeBasisPoints: 500,
       creators: [{ address: wallet.publicKey, share: 100 }],
     };
 
@@ -56,8 +53,8 @@ async function mintNFT(imagePath) {
     const { nft, response } = await metaplex.nfts().create({
       uri: nftMetadata.uri,
       name: nftMetadata.name,
-      sellerFeeBasisPoints: nftMetadata.sellerFeeBasisPoints,
       symbol: nftMetadata.symbol,
+      sellerFeeBasisPoints: nftMetadata.sellerFeeBasisPoints,
       creators: nftMetadata.creators,
     });
     
@@ -68,7 +65,7 @@ async function mintNFT(imagePath) {
       mintAddress: nft.address.toString(),
       minterAddress: wallet.publicKey.toString(),
       transactionId: response.signature
-    }; // Return JSON with all details
+    };
   } catch (error) {
     console.error("Error during NFT minting process:", error.message);
     throw new Error("NFT minting process failed: " + error.message);
