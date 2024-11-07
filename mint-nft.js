@@ -6,7 +6,10 @@ const axios = require('axios');
 const FormData = require('form-data');
 
 const connection = new Connection(clusterApiUrl('devnet'), "confirmed");
-const wallet = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(process.env.WALLET_KEYPAIR))));
+// const wallet = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(process.env.WALLET_KEYPAIR))));
+const walletKeypairData = JSON.parse(process.env.SOLANA_WALLET_JSON);
+const wallet = Keypair.fromSecretKey(Uint8Array.from(walletKeypairData));
+
 const metaplex = new Metaplex(connection).use(keypairIdentity(wallet));
 
 async function uploadToIPFS(imagePath, name, description) {
