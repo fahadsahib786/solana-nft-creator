@@ -4,74 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mint NFT on Solana</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
+      background-color: #f0f2f5;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: Arial, sans-serif;
-      background-color: #f0f2f5;
+      min-height: 100vh;
       margin: 0;
-      height: 100vh;
     }
     .container {
-      text-align: center;
       background-color: #ffffff;
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
+      max-width: 500px;
       width: 100%;
-    }
-    h1 {
-      color: #333;
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-    label {
-      display: block;
-      margin-top: 20px;
-      font-size: 16px;
-      color: #555;
-    }
-    input[type="file"] {
-      margin-top: 10px;
-    }
-    button {
-      background-color: #6200ea;
-      color: white;
-      font-size: 16px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
-    }
-    .message {
-      margin-top: 20px;
-      font-size: 14px;
-      padding: 10px;
-      display: none;
-    }
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-      border-radius: 5px;
-    }
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-      border-radius: 5px;
     }
     .loading {
       display: inline-block;
-      margin-top: 20px;
       width: 20px;
       height: 20px;
       border: 3px solid #aaa;
@@ -86,26 +39,41 @@
 </head>
 <body>
   <div class="container">
-    <h1>Mint NFT on Solana Devnet</h1>
+    <h1 class="text-center mb-4">Mint NFT on Solana Devnet</h1>
     <form id="mintForm" action="/mint" method="post" enctype="multipart/form-data">
-      <label for="name">NFT Name:</label>
-      <input type="text" id="name" name="name" required>
-      
-      <label for="symbol">NFT Symbol:</label>
-      <input type="text" id="symbol" name="symbol" required>
-      
-      <label for="description">Description:</label>
-      <textarea id="description" name="description" rows="3" required></textarea>
-      
-      <label for="image">Select an image to mint as NFT:</label>
-      <input type="file" id="image" name="image" required>
-      
-      <button type="submit" id="mintButton">Mint NFT</button>
-      <div class="loading" id="loadingSpinner" style="display: none;"></div>
+      <div class="form-group">
+        <label for="name">NFT Name:</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Enter NFT name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="symbol">NFT Symbol:</label>
+        <input type="text" class="form-control" id="symbol" name="symbol" placeholder="Enter NFT symbol" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter NFT description" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="image">Select an image to mint as NFT:</label>
+        <input type="file" class="form-control-file" id="image" name="image" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="mintButton">Mint NFT</button>
+      <div class="text-center mt-3">
+        <div class="loading" id="loadingSpinner" style="display: none;"></div>
+      </div>
     </form>
 
-    <div id="message" class="message"></div>
+    <div id="message" class="alert mt-4" style="display: none;"></div>
   </div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
   <script>
     document.getElementById('mintForm').onsubmit = async function (e) {
@@ -120,7 +88,7 @@
 
       try {
         const response = await fetch('/mint', { method: 'POST', body: formData });
-        const result = await response.json(); // Parse JSON response
+        const result = await response.json();
 
         if (response.ok && result.success) {
           displayMessage(`
@@ -134,7 +102,7 @@
           throw new Error(result.error || 'Minting failed');
         }
       } catch (error) {
-        displayMessage(error.message, 'error');
+        displayMessage(error.message, 'danger');
       } finally {
         mintButton.disabled = false;
         loadingSpinner.style.display = 'none';
@@ -143,11 +111,10 @@
 
     function displayMessage(message, type) {
       const messageDiv = document.getElementById("message");
-      messageDiv.className = `message ${type}`;
+      messageDiv.className = `alert alert-${type}`;
       messageDiv.innerHTML = message;
       messageDiv.style.display = 'block';
     }
   </script>
 </body>
 </html>
-
